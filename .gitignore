@@ -1,0 +1,7 @@
+*~
+*,v
+*.gz
+igp_*
+.changes
+*.swp
+pub/System/TwitterPlugin/twitter.css

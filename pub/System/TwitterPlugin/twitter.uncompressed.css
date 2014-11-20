@@ -1,0 +1,46 @@
+.twitter {
+  margin: 0;
+  padding: 0;
+  overflow-y: hidden;
+}
+
+.twitter li {
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 1.0em 0;
+  padding: 1.0em 0 0 60px;
+  border-top:1px solid #ddd;
+  list-style-type: none;
+}
+.twitter li:first-child {
+  padding-top:0px;
+  border-top:0px;
+}
+
+.twitter .avatar {
+  margin-left:-60px;
+  padding-right: 1em; 
+  background:transparent;
+  float:left;
+}
+
+.twitter .avatar img {
+  vertical-align: middle;
+}
+
+.twitter .screen_name { 
+  font-weight:bold; 
+}
+
+.twitter .retweet a,
+.twitter .retweet { 
+  color:#aaa; 
+}
+
+.twitter a.media {
+  display:inline-block;
+}
+.twitter .media img {
+  max-width:100%;
+  height:auto;
+}

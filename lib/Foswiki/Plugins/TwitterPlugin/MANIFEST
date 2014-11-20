@@ -1,0 +1,10 @@
+data/System/TwitterPlugin.txt 0644
+lib/Foswiki/Plugins/TwitterPlugin/Config.spec 0644
+lib/Foswiki/Plugins/TwitterPlugin/Core.pm 0644
+lib/Foswiki/Plugins/TwitterPlugin.pm 0644
+lib/Foswiki/Plugins/TwitterPlugin/UserAgent.pm 0644
+pub/System/TwitterPlugin/Makefile 0644
+pub/System/TwitterPlugin/twitter.css 0644
+pub/System/TwitterPlugin/twitter.css.gz 0644
+pub/System/TwitterPlugin/twitter.uncompressed.css 0644
+templates/twitterplugin.tmpl 0644

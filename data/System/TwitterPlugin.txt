@@ -1,0 +1,237 @@
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1416493484" format="1.1"  version="1"}%
+---+!! %TOPIC%
+%SHORTDESCRIPTION%
+
+%TOC%
+
+---++ Syntax
+=%<nop>TWITTER{"&lt;method>" [...parameters ...]}%=
+
+The plugin tries to make all parameters of the public twitter rest api available to wiki applications.
+The most common ones are:
+
+| *Parameter* | *Description* | *Default* |
+| =&lt;method>= | known actions are <p> \
+   <ul>\
+      <li>favorites</li>\
+      <li>get_lists</li> \
+      <li>home_timeline</li> \
+      <li>list_statuses</li> \
+      <li>mentions_timeline</li> \
+      <li>search</li> \
+      <li>user_timeline</li> \
+   </ul> </p> ... explained [[#Methods][below]]. | |
+| =header="..."= | header string to be prepended to the timeline | <verbatim class="html"><ul class='twitter'></verbatim> |
+| =format="..."= | format string to be used for every tweet of a timeline | <verbatim class="html"><li class='tweet'>$avatar <span class='screen_name'>
+  <a href='$profile_url'>$name</a></span> - $time $retweet
+  <div class='text'>$text</div> $media
+</li> </verbatim> |
+| =separator="..."= | separator string between every tweet of a timeline being rendered | | 
+| =footer="..."= | footer srting to be prepended to the timeline | <verbatim class="html"></ul></verbatim> |
+| =avatar_format= | string to render the user of a tweet, i.e. it's avatar | <verbatim class="html"><a class='avatar' href='$profile_url'><img src='$profile_image_url' height='48' width='48' title='$screen_name' /></a></verbatim> |
+| =retweet_format= | string to render a retweet differently | <verbatim class="html"><span class='retweet'>%MAKETEXT{"retweeted [_1]" args="<a href='https://twitter.com/$orig_screen_name'>$orig_screen_name</a>"}%</span></verbatim> |
+| =time_format= | string to render the tweet's time stamp | <verbatim class="html"><a href='$url' class='time'>$relative_created_at</a></verbatim> |
+| =photo_format= | this string is used to rendere a photo part of a tweet | <verbatim class="html"><a href='$display_url' class='photo'><img src='$url' width='$width' height='$height' /></a></verbatim> |
+| =raw="on/off"= | use this switch to return the raw json result of an action; all above format string won't be used then | off |
+| =count="&lt;int>"= | number of tweets to return | 20 |
+
+For additional parameters see https://dev.twitter.com/rest/public.
+
+Identifiers that can be used in a format string are:
+
+   * =$avatar=: expands to the result of the =avatar_format= string
+   * =$time=: expands to the result of the =time_format= string
+   * =$url=: status url
+   * =$profile_url=: link to the profile of the user that tweeted this status
+   * =$retweet=: expands to the result of the =reteweet_format=
+   * =$media=: expands to the result of the =photo_format= string
+   * =$profile_image_url=: link to the user's avatar image
+   * =$text=: text of this tweet
+   * =$created_at= date when this tweet was created
+   * =$relative_created_at= 
+   * =$screen_name=: user's screen name
+   * =$name=: user's name
+   * =$orig_screen_name=: screen name of the user that created the original tweet 
+   * =$orig_name: name of the user that created the original tweet 
+   * =$id=: id of this tweet
+
+---++ Methods
+
+%RED%TODO:%ENDCOLOR% this list is not complete yet. See additional methods at [[https://metacpan.org/pod/Net::Twitter][Net::Twitter]].
+
+---+++ favorites
+
+Returns the 20 most recent favorite statuses for the authenticating user or user specified by the ID parameter.
+
+Parameters: 
+
+   * =user_id=
+   * =screen_name=
+   * =count=
+   * =since_id=
+   * =max_id=
+   * =include_entities=
+
+---+++ get_lists
+
+Returns all lists the authenticating or specified user subscribes to, including their own. The user is specified using the user_id or screen_name parameters. If no user is given, the authenticating user is used.
+
+Parameter:
+
+   * =user_id=
+   * =screen_name=
+   * =reverse=
+
+Additional identifiers available when formatting results
+
+   * =$id=
+   * =$name= 
+   * =$slug=
+   * =$mode= 
+   * =$subscriber_count=
+   * =$member_count=
+   * =$full_name=
+   * =$description=
+
+---+++ home_timeline
+
+Returns the 20 most recent statuses, including retweets, posted by the authenticating user and that user's friends.
+
+Parameters: 
+
+   * =since_id=
+   * =max_id=
+   * =count=
+   * =exclude_replies=
+   * =contributor_details=
+   * =include_entities=
+   * =trim_user=
+
+---+++ list_statuses
+
+Returns tweet timeline for members of the specified list. Historically, retweets were not available in list timeline responses but you can now use the include_rts=true parameter to additionally receive retweet objects.
+
+Parameters: 
+
+   * =list_id=
+   * =slug=
+   * =owner_screen_name=
+   * =owner_id=
+   * =since_id=
+   * =max_id=
+   * =count=
+   * =include_entities=
+   * =include_rts=
+
+---+++ mentions_timeline
+
+Returns the 20 most recent mentions (statuses containing @username) for the authenticating user.
+
+Parameters: 
+
+   * =since_id=
+   * =max_id=
+   * =count=
+   * =trim_user=
+   * =include_entities=
+   * =contributor_details=
+
+---+++ search
+
+See also https://dev.twitter.com/rest/public/search
+
+Parameters: 
+
+   * =q= (required)
+   * =count=
+   * =lang=
+   * =locale=
+   * =rpp=
+   * =since_id=
+   * =max_id=
+   * =until=
+   * =geocode=
+   * =include_entities=
+
+---+++ user_timeline
+
+Returns the 20 most recent statuses posted by the authenticating user, or the user specified by screen_name or user_id.
+
+Parameters: 
+
+   * =user_id=
+   * =screen_name=
+   * =since_id=
+   * =max_id=
+   * =count=
+   * =trim_user=
+   * =exclude_replies=
+   * =include_rts=
+   * =contributor_details=
+
+---++ Examples
+
+<verbatim class="tml">
+%TWITTER{
+   "home_timeline"
+   count="5"
+}%
+</verbatim>
+
+<verbatim class="tml">
+%TWITTER{"get_lists"
+   id="<name>"
+   format="   * slug=$slug, id=$id"
+   separator="$n"
+}%
+</verbatim>
+
+<verbatim class="tml">
+%TWITTER{
+   "list_statuses"
+   slug=<listname>"
+   owner_screen_name="<screen name>"
+}%
+</verbatim>
+
+<verbatim class="tml">
+%TWITTER{
+   "user_timeline"
+   id="<name>"
+}%
+</verbatim>
+
+---++ Installation Instructions
+
+First, you need to create a twitter app. Log in to your Twitter account and go to https://apps.twitter.com/. 
+Click on "Create New App" and fill out the details, i.e. insert the URL of the new Foswiki website that you've 
+installed this plugin on. After clicking on "Create your Twitter application" you will get to a screen allowing
+you to manage and configure details as required. Click on the "Keys and Access Tokens" tab
+and collect the information needed to configure %TOPIC% using =configure= correctly
+
+   * =$Foswiki::cfg{TwitterPlugin}{APIKey}=
+   * =$Foswiki::cfg{TwitterPlugin}{APISecret}=
+
+Next click on "Create my access token" and record these keys in:
+
+   * =$Foswiki::cfg{TwitterPlugin}{AccessToken}=
+   * =$Foswiki::cfg{TwitterPlugin}{AccessSecret}=
+
+Make sure that you do NOT share this information with anybody else and that these keys are not readable
+by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki server.
+
+---++ Info
+<!--
+   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
+-->
+
+|  Author(s): | Michael Daum|
+|  Copyright: | &copy; 2014 Michael Daum http://michaeldaumconsulting.com |
+|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  20 Nov 2014: | initial release |
+|  Dependencies: | %$DEPENDENCIES% |
+|  Home page: | Foswiki:Extensions/%TOPIC% |
+|  Support: | Foswiki:Support/%TOPIC% |

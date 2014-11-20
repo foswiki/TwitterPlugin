@@ -1,0 +1,15 @@
+%TMPL:DEF{"twitter::header"}%<ul class='twitter'>%TMPL:END%
+
+%TMPL:DEF{"twitter::format"}%<li class='tweet'>$avatar <span class='screen_name'><a href='$profile_url'>$name</a></span> - $time $retweet
+  <div class='text'>$text</div> $media
+</li>%TMPL:END%
+
+%TMPL:DEF{"twitter::footer"}%</ul>%TMPL:END%
+
+%TMPL:DEF{"twitter::avatar"}%<a class='avatar' href='$profile_url'><img src='$profile_image_url' height='48' width='48' title='$screen_name' /></a>%TMPL:END%
+
+%TMPL:DEF{"twitter::retweet"}%<span class='retweet'>%MAKETEXT{"retweeted [_1]" args="<a href='https://twitter.com/$orig_screen_name'>$orig_name</a>"}%</span>%TMPL:END%
+
+%TMPL:DEF{"twitter::time"}%<a href='$url' class='time'>$relative_created_at</a>%TMPL:END%
+
+%TMPL:DEF{"twitter::photo"}%<a href='$display_url' class='photo'><img src='$url' width='$width' height='$height' /></a>%TMPL:END%
