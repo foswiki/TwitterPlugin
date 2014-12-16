@@ -69,7 +69,9 @@ sub request {
 
   #print STDERR "uri=$uri\n";
 
-  $obj = $this->{cache}->get($uri) unless $refresh;
+  my $cacheKey = $Foswiki::cfg{TwitterPlugin}{APIKey} . $uri;
+
+  $obj = $this->{cache}->get($cacheKey) unless $refresh;
 
   if (defined $obj) {
     #print STDERR "... found in cache $uri\n";
@@ -82,7 +84,7 @@ sub request {
 
   ## cache only "200 OK" content
   if ($res->code eq HTTP::Status::RC_OK) {
-    $this->{cache}->set($uri, $res->as_string, $this->{cacheExpire});
+    $this->{cache}->set($cacheKey, $res->as_string, $this->{cacheExpire});
   }
 
   return $res;

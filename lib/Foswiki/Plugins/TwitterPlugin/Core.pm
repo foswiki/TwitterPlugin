@@ -139,18 +139,140 @@ HERE
   return $result;
 }
 
+sub handle_rate_limit_status {
+  my ($this, $params) = @_;
+
+  my $args = _params2args($params);
+
+  my $oldExpires = $this->agent->ua->expires(0);
+  my $result = $this->agent->rate_limit_status($args);
+  $this->agent->ua->expires($oldExpires);
+  
+  return "<pre>"._dump($result)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+  return "" unless $result;
+
+  my $format = $params->{format};
+  my $header = $params->{header} || '';
+  my $footer = $params->{footer} || '';
+  my $sep = $params->{separator}; 
+
+  $format = '$screen_name' unless defined $format;
+  $sep = ', ' unless defined $sep;
+
+  my @result = ();
+  foreach my $item ($result->resources) {
+    my $line = $format;
+
+    $line =~ s/\$limit\(([^\)]+)\)/_rate_limit_resource($item, $1, "limit")/ge;
+    $line =~ s/\$remaining\(([^\)]+)\)/_rate_limit_resource($item, $1, "remaining")/ge;
+
+    push @result, $line;
+  }
+
+  return "" unless @result;
+
+  return Foswiki::Func::decodeFormatTokens($header.join($sep, @result).$footer);
+}
+
+sub _rate_limit_resource {
+  my ($item, $id, $prop) = @_;
+
+  my $first;
+  if ($id =~ /^\/?([^\/]+)/) {
+    $first = $1;
+  }
+
+  return "" unless $first;
+
+  $item = $item->{$first};
+  return "" unless $item;
+
+  $item = $item->{$id};
+  return "" unless $item;
+
+  my $val = $item->{$prop};
+  $val = '' unless defined $val;
+
+  return $val;
+}
+
+sub handle_followers {
+  my ($this, $params) = @_;
+
+  my $oldExpires;
+  if (defined $params->{expires}) {
+    $oldExpires = $this->agent->ua->expires($params->{expires});
+  }
+
+  my @followers = ();
+  my $args = _params2args($params);
+  for (my $cursor = -1, my $result; $cursor; $cursor = $result->{next_cursor} ) {
+    $args->{cursor} = $cursor;
+    $result = $this->agent->followers($args);
+    push @followers, @{$result->users};
+  }
+
+  $this->agent->ua->expires($oldExpires) if defined $oldExpires;
+
+  return "<pre>"._dump(@followers)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+  return "" unless @followers;
+
+  my $format = $params->{format};
+  my $header = $params->{header} || '';
+  my $footer = $params->{footer} || '';
+  my $sep = $params->{separator}; 
+
+  $format = '$screen_name' unless defined $format;
+  $sep = ', ' unless defined $sep;
+
+  my @result = ();
+  
+  my $index = 0;
+  foreach my $item (@followers) {
+    my $line = $format;
+
+    foreach my $key (qw(created_at description favorites_count followers_count
+                        friends_count id lang listed_count location name profile_background_color
+                        profile_background_image_url profile_background_image_url_https
+                        profile_background_tile profile_image_url profile_image_url_https
+                        profile_link_color profile_location profile_sidebar_border_color
+                        profile_sidebar_fill_color profile_text_color profile_use_background_image
+                        protected screen_name status statuses_count time_zone url utc_offset verified)) {
+      my $val;
+
+      if ($key eq 'status') {
+        $val = defined($item->{$key}) ? $item->{$key}->text : '';
+      } else {
+        $val = $item->{$key};
+      } 
+      $line =~ s/\$$key/$val/g;
+    }
+
+    $line =~ s/\$index/$index/g;
+    push @result, $line;
+
+    $index++;
+  }
+
+  return "" unless @result;
+
+  my $result = $header.join($sep, @result).$footer;
+  $result =~ s/\$count/$index/g;
+
+  return Foswiki::Func::decodeFormatTokens($result);
+}
 
 sub handle_favorites {
   my ($this, $params) = @_;
 
   my $oldExpires;
   if (defined $params->{expires}) {
-    $oldExpires = $this->ua->expires($params->{expires});
+    $oldExpires = $this->agent->agent->ua->expires($params->{expires});
   }
 
   my $favs = $this->agent->favorites(_params2args($params));
 
-  $this->ua->expires($oldExpires) if defined $oldExpires;
+  $this->agent->ua->expires($oldExpires) if defined $oldExpires;
 
   return $this->renderTimeline($favs, $params);
 }
@@ -160,7 +282,7 @@ sub handle_get_lists {
 
   my $lists = $this->agent->get_lists(_params2args($params));
 
-  return "<pre>".dump($lists)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+  return "<pre>"._dump($lists)."</pre>" if Foswiki::Func::isTrue($params->{raw});
 
   return "" unless $lists;
 
@@ -170,7 +292,7 @@ sub handle_get_lists {
   my $sep = $params->{separator}; 
 
   $format = '$slug' unless defined $format;
-  $sep = ', ' unless $sep;
+  $sep = ', ' unless defined $sep;
 
   my @result = ();
   foreach my $list (@$lists) {
@@ -230,7 +352,7 @@ sub handle_search {
 sub renderTimeline {
   my ($this, $timeline, $params) = @_;
 
-  return "<pre>".dump($timeline)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+  return "<pre>"._dump($timeline)."</pre>" if Foswiki::Func::isTrue($params->{raw});
 
   my $format = $params->{format};
   my $header = $params->{header};
@@ -342,6 +464,7 @@ sub _params2args {
   delete $args{footer};
   delete $args{separator};
   delete $args{expires};
+  delete $args{raw};
 
   foreach my $key (keys %args) {
     delete $args{$key} if $key =~ /_format$/;
@@ -357,5 +480,13 @@ sub _inlineError {
   return "<span class='foswikiAlert'>".$msg.'</span>';
 }
 
+sub _dump {
+  my $obj = shift;
+  
+  my $result = dump($obj);
+  $result =~ s/access_token\s*=>\s*"[^"]*",/access_token => ""/g;
+
+  return $result;
+}
 
 1;

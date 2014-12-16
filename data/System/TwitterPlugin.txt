@@ -1,11 +1,13 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1416493484" format="1.1"  version="1"}%
+%META:TOPICINFO{author="ProjectContributor" comment="" date="1418752834" format="1.1"  version="1"}%
 ---+!! %TOPIC%
 %SHORTDESCRIPTION%
 
 %TOC%
 
 ---++ Syntax
-=%<nop>TWITTER{"&lt;method>" [...parameters ...]}%=
+<verbatim class="tml">
+%TWITTER{"<method>" [...parameters ...]}%
+</verbatim>
 
 The plugin tries to make all parameters of the public twitter rest api available to wiki applications.
 The most common ones are:
@@ -14,11 +16,13 @@ The most common ones are:
 | =&lt;method>= | known actions are <p> \
    <ul>\
       <li>favorites</li>\
+      <li>folowers</li>\
       <li>get_lists</li> \
       <li>home_timeline</li> \
       <li>list_statuses</li> \
       <li>mentions_timeline</li> \
       <li>search</li> \
+      <li>rate_limit_status</li> \
       <li>user_timeline</li> \
    </ul> </p> ... explained [[#Methods][below]]. | |
 | =header="..."= | header string to be prepended to the timeline | <verbatim class="html"><ul class='twitter'></verbatim> |
@@ -72,6 +76,54 @@ Parameters:
    * =max_id=
    * =include_entities=
 
+Example:
+
+<verbatim class="tml">
+%TWITTER{"favorites"}%
+</verbatim>
+
+---+++ folowers
+
+Returns a list of users following the specified user.
+
+Parameters: 
+
+   * =user_id=
+   * =screen_name=
+
+Additional identifiers available when formatting results:
+
+   * =$created_at=
+   * =$description=
+   * =$favorites_count=
+   * =$followers_count=
+   * =$friends_count=
+   * =$id=
+   * =$lang=
+   * =$listed_count=
+   * =$location=
+   * =$name=
+   * =$profile_background_color=
+   * =$profile_background_image_url=
+   * =$profile_background_image_url_https=
+   * =$profile_background_tile=
+   * =$profile_image_url=
+   * =$profile_image_url_https=
+   * =$profile_link_color=
+   * =$profile_location=
+   * =$profile_sidebar_border_color=
+   * =$profile_sidebar_fill_color=
+   * =$profile_text_color=
+   * =$profile_use_background_image=
+   * =$protected=
+   * =$screen_name=
+   * =$status=
+   * =$statuses_count=
+   * =$time_zone=
+   * =$url=
+   * =$utc_offset=
+   * =$verified=
+
 ---+++ get_lists
 
 Returns all lists the authenticating or specified user subscribes to, including their own. The user is specified using the user_id or screen_name parameters. If no user is given, the authenticating user is used.
@@ -93,6 +145,17 @@ Additional identifiers available when formatting results
    * =$full_name=
    * =$description=
 
+Example: 
+
+<verbatim class="tml">
+%TWITTER{"get_lists"
+   id="<name>"
+   format="   * slug=$slug, id=$id"
+   separator="$n"
+}%
+</verbatim>
+
+
 ---+++ home_timeline
 
 Returns the 20 most recent statuses, including retweets, posted by the authenticating user and that user's friends.
@@ -106,6 +169,15 @@ Parameters:
    * =contributor_details=
    * =include_entities=
    * =trim_user=
+
+Example:
+
+<verbatim class="tml">
+%TWITTER{
+   "home_timeline"
+   count="5"
+}%
+</verbatim>
 
 ---+++ list_statuses
 
@@ -122,6 +194,17 @@ Parameters:
    * =count=
    * =include_entities=
    * =include_rts=
+
+Example: 
+
+<verbatim class="tml">
+%TWITTER{
+   "list_statuses"
+   slug=<listname>"
+   owner_screen_name="<screen name>"
+}%
+</verbatim>
+
 
 ---+++ mentions_timeline
 
@@ -153,6 +236,38 @@ Parameters:
    * =geocode=
    * =include_entities=
 
+---+++ rate_limit_status
+
+Returns the remaining number of API requests available to the authenticated user before the API limit is reached for the current 15 minutes window.
+
+
+Additional identifiers available when formatting results:
+
+  * =$limit(&lt;resource>)=
+  * =$remaining(&lt;resource>)=
+
+=&lt;resource>= is the name of the resource that a rate limit appies to. See https://dev.twitter.com/rest/public/rate-limits for a list of available 
+resources.
+
+Example: 
+
+<verbatim class="tml">
+%TWITTER{
+   "rate_limit_status"
+   format="| *Resource* | *Limit* | *Remaining* |
+           | /application/rate_limit_status | $limit(/application/rate_limit_status) | $remaining(/application/rate_limit_status) |
+           | /statuses/lookup | $limit(/statuses/lookup) | $remaining(/statuses/lookup) |
+           | /statuses/home_timeline | $limit(/statuses/home_timeline) | $remaining(/statuses/home_timeline) |
+           | /statuses/user_timeline | $limit(/statuses/user_timeline) | $remaining(/statuses/user_timeline) |
+           | /favorites/list | $limit(/favorites/list) | $remaining(/favorites/list) |
+           | /lists/list | $limit(/lists/list) | $remaining(/lists/list) |
+           | /lists/statuses | $limit(/lists/statuses) | $remaining(/lists/statuses) |
+           | /followers/list | $limit(/followers/list) | $remaining(/followers/list) |
+           | /search/tweets | $limit(/search/tweets) | $remaining(/search/tweets) |
+"
+}%
+</verbatim>
+
 ---+++ user_timeline
 
 Returns the 20 most recent statuses posted by the authenticating user, or the user specified by screen_name or user_id.
@@ -169,30 +284,7 @@ Parameters:
    * =include_rts=
    * =contributor_details=
 
----++ Examples
-
-<verbatim class="tml">
-%TWITTER{
-   "home_timeline"
-   count="5"
-}%
-</verbatim>
-
-<verbatim class="tml">
-%TWITTER{"get_lists"
-   id="<name>"
-   format="   * slug=$slug, id=$id"
-   separator="$n"
-}%
-</verbatim>
-
-<verbatim class="tml">
-%TWITTER{
-   "list_statuses"
-   slug=<listname>"
-   owner_screen_name="<screen name>"
-}%
-</verbatim>
+Example: 
 
 <verbatim class="tml">
 %TWITTER{
@@ -231,6 +323,7 @@ by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki serve
 |  Release: | %$RELEASE% |
 |  Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  16 Dec 2014: | added =followers= and =rate_limit_status= api |
 |  20 Nov 2014: | initial release |
 |  Dependencies: | %$DEPENDENCIES% |
 |  Home page: | Foswiki:Extensions/%TOPIC% |

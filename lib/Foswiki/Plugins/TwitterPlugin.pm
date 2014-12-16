@@ -20,8 +20,8 @@ use warnings;
 
 use Foswiki::Func ();
 
-our $VERSION = '1.00';
-our $RELEASE = '1.00';
+our $VERSION = '2.00';
+our $RELEASE = '2.00';
 our $SHORTDESCRIPTION = 'Access Twitter via Foswiki';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;
