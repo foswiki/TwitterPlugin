@@ -5,10 +5,10 @@ igp_*
 .changes
 *.swp
 pub/System/TwitterPlugin/twitter.css
-TwitterPlugin.md5
-TwitterPlugin.sha1
-TwitterPlugin.tgz
-TwitterPlugin.txt
-TwitterPlugin.zip
-TwitterPlugin_installer
-TwitterPlugin_installer.pl
+/TwitterPlugin.md5
+/TwitterPlugin.sha1
+/TwitterPlugin.tgz
+/TwitterPlugin.txt
+/TwitterPlugin.zip
+/TwitterPlugin_installer
+/TwitterPlugin_installer.pl

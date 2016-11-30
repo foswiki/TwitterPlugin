@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2016 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,29 +20,20 @@ use warnings;
 
 use Foswiki::Func ();
 
-our $VERSION = '2.00';
-our $RELEASE = '2.00';
+our $VERSION = '3.00';
+our $RELEASE = '30 Nov 2016';
 our $SHORTDESCRIPTION = 'Access Twitter via Foswiki';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;
 
-sub core {
-  unless (defined $core) {
-    require Foswiki::Plugins::TwitterPlugin::Core;
-    $core = new Foswiki::Plugins::TwitterPlugin::Core();
-  }
-  return $core;
-}
-
-
 sub initPlugin {
 
-  Foswiki::Func::registerTagHandler('TWITTER', sub { return core->TWITTER(@_); });
+  Foswiki::Func::registerTagHandler('TWITTER', sub { return getCore()->TWITTER(@_); });
 
   Foswiki::Func::registerRESTHandler(
     'update',
     sub {
-      return core->restUpdate(@_);
+      return getCore()->restUpdate(@_);
     },
     authenticate => 1,
     validate => 1,
@@ -50,8 +41,30 @@ sub initPlugin {
     description => 'Send a status update to a twitter account.'
   );
 
+  Foswiki::Func::registerRESTHandler('purgeCache', sub { return getCore()->purgeCache(@_); },
+    authenticate => 1,
+    validate => 0,
+    http_allow => 'GET,POST',
+  );
+
+  Foswiki::Func::registerRESTHandler('clearCache', sub { return getCore()->clearCache(@_); },
+    authenticate => 1,
+    validate => 0,
+    http_allow => 'GET,POST',
+  );
+
   return 1;
 }
+
+sub getCore {
+  unless (defined $core) {
+    require Foswiki::Plugins::TwitterPlugin::Core;
+    $core = Foswiki::Plugins::TwitterPlugin::Core->new();
+  }
+  return $core;
+}
+
+
 
 sub finishPlugin {
   undef $core;

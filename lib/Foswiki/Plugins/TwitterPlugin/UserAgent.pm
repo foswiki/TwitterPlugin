@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2016 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -31,14 +31,22 @@ sub new {
   $this->{cacheExpire} = $Foswiki::cfg{TwitterPlugin}{CacheExpire};
   $this->{cacheExpire} = 3600 unless defined $this->{cacheExpire}; 
 
-  $this->{cache} = Cache::FileCache->new({
-      'cache_root' => Foswiki::Func::getWorkArea('TwitterPlugin') . '/cache',
-      'default_expires_in' => $this->{cacheExpire},
-      'directory_umask' => 077,
-    }
-  );
-
   return $this;
+}
+
+sub cache {
+  my $this = shift;
+
+  unless ($this->{cache}) {
+    $this->{cache} = Cache::FileCache->new({
+        'cache_root' => Foswiki::Func::getWorkArea('TwitterPlugin') . '/cache',
+        'default_expires_in' => $this->{cacheExpire},
+        'directory_umask' => 077,
+      }
+    );
+  }
+
+  return $this->{cache};
 }
 
 sub expires {
@@ -71,7 +79,7 @@ sub request {
 
   my $cacheKey = $Foswiki::cfg{TwitterPlugin}{APIKey} . $uri;
 
-  $obj = $this->{cache}->get($cacheKey) unless $refresh;
+  $obj = $this->cache->get($cacheKey) unless $refresh;
 
   if (defined $obj) {
     #print STDERR "... found in cache $uri\n";
@@ -84,7 +92,7 @@ sub request {
 
   ## cache only "200 OK" content
   if ($res->code eq HTTP::Status::RC_OK) {
-    $this->{cache}->set($cacheKey, $res->as_string, $this->{cacheExpire});
+    $this->cache->set($cacheKey, $res->as_string, $this->{cacheExpire});
   }
 
   return $res;

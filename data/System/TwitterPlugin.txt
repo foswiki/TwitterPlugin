@@ -1,6 +1,6 @@
 %META:TOPICINFO{author="ProjectContributor" comment="" date="1418752834" format="1.1"  version="1"}%
 ---+!! %TOPIC%
-%SHORTDESCRIPTION%
+%FORMFIELD{"Description"}%
 
 %TOC%
 
@@ -15,14 +15,18 @@ The most common ones are:
 | *Parameter* | *Description* | *Default* |
 | =&lt;method>= | known actions are <p> \
    <ul>\
+      <li>account_settings</li>\
       <li>favorites</li>\
+      <li>friends</li>\
       <li>folowers</li>\
+      <li>following_timeline</li>\
+      <li>retweets_of_me</li>\
       <li>get_lists</li> \
       <li>home_timeline</li> \
       <li>list_statuses</li> \
       <li>mentions_timeline</li> \
-      <li>search</li> \
       <li>rate_limit_status</li> \
+      <li>search</li> \
       <li>user_timeline</li> \
    </ul> </p> ... explained [[#Methods][below]]. | |
 | =header="..."= | header string to be prepended to the timeline | <verbatim class="html"><ul class='twitter'></verbatim> |
@@ -312,19 +316,24 @@ Next click on "Create my access token" and record these keys in:
 Make sure that you do NOT share this information with anybody else and that these keys are not readable
 by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki server.
 
----++ Info
-<!--
-   * Set SHORTDESCRIPTION = %$SHORTDESCRIPTION%
--->
+---++ Dependencies
+%$DEPENDENCIES%
 
-|  Author(s): | Michael Daum|
-|  Copyright: | &copy; 2014 Michael Daum http://michaeldaumconsulting.com |
-|  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
-|  Release: | %$RELEASE% |
-|  Version: | %$VERSION% |
-|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+---++ Change History
+%TABLE{columnwidths="7em" tablewidth="100%"}%
+|  30 Nov 2016: | added =account_settings=, =friends=, =following_timeline=, =retweets_of_me= apis; \
+                  fixed encoding on Foswiki-2.x; \
+                  added rest hanlder =purgeCache= and =clearCache= to maintain the cache |
 |  16 Dec 2014: | added =followers= and =rate_limit_status= api |
 |  20 Nov 2014: | initial release |
-|  Dependencies: | %$DEPENDENCIES% |
-|  Home page: | Foswiki:Extensions/%TOPIC% |
-|  Support: | Foswiki:Support/%TOPIC% |
+
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="Michael Daum"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014-2016 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
+%META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
+%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%TOPIC%"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%TOPIC%"}%
+%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%

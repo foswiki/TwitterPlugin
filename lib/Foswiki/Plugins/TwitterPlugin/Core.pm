@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2016 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -76,6 +76,22 @@ sub agent {
   }
 
   return $this->{agent};
+}
+
+sub purgeCache {
+  my $this = shift;
+
+  $this->agent->ua->cache->purge;
+
+  return;
+}
+
+sub clearCache {
+  my $this = shift;
+
+  $this->agent->ua->cache->clear;
+
+  return;
 }
 
 sub restUpdate {
@@ -204,62 +220,19 @@ sub handle_followers {
     $oldExpires = $this->agent->ua->expires($params->{expires});
   }
 
-  my @followers = ();
+  my @users = ();
   my $args = _params2args($params);
   for (my $cursor = -1, my $result; $cursor; $cursor = $result->{next_cursor} ) {
     $args->{cursor} = $cursor;
     $result = $this->agent->followers($args);
-    push @followers, @{$result->users};
+    push @users, @{$result->users};
   }
 
   $this->agent->ua->expires($oldExpires) if defined $oldExpires;
 
-  return "<pre>"._dump(@followers)."</pre>" if Foswiki::Func::isTrue($params->{raw});
-  return "" unless @followers;
+  return "" unless @users;
+  return $this->renderUsers(\@users, $params);
 
-  my $format = $params->{format};
-  my $header = $params->{header} || '';
-  my $footer = $params->{footer} || '';
-  my $sep = $params->{separator}; 
-
-  $format = '$screen_name' unless defined $format;
-  $sep = ', ' unless defined $sep;
-
-  my @result = ();
-  
-  my $index = 0;
-  foreach my $item (@followers) {
-    my $line = $format;
-
-    foreach my $key (qw(created_at description favorites_count followers_count
-                        friends_count id lang listed_count location name profile_background_color
-                        profile_background_image_url profile_background_image_url_https
-                        profile_background_tile profile_image_url profile_image_url_https
-                        profile_link_color profile_location profile_sidebar_border_color
-                        profile_sidebar_fill_color profile_text_color profile_use_background_image
-                        protected screen_name status statuses_count time_zone url utc_offset verified)) {
-      my $val;
-
-      if ($key eq 'status') {
-        $val = defined($item->{$key}) ? $item->{$key}->text : '';
-      } else {
-        $val = $item->{$key};
-      } 
-      $line =~ s/\$$key/$val/g;
-    }
-
-    $line =~ s/\$index/$index/g;
-    push @result, $line;
-
-    $index++;
-  }
-
-  return "" unless @result;
-
-  my $result = $header.join($sep, @result).$footer;
-  $result =~ s/\$count/$index/g;
-
-  return Foswiki::Func::decodeFormatTokens($result);
 }
 
 sub handle_favorites {
@@ -309,6 +282,35 @@ sub handle_get_lists {
   return Foswiki::Func::decodeFormatTokens($header.join($sep, @result).$footer);
 }
 
+sub handle_account_settings {
+  my ($this, $params) = @_;
+
+  my $settings = $this->agent->account_settings(_params2args($params));
+  return "<pre>"._dump($settings)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+
+  my $format = $params->{format} || '$screen_name';
+  foreach my $key (qw(allow_contributor_request allow_dm_groups_from allow_dms_from discoverable_by_email discoverable_by_mobile_phone 
+                      display_sensitive_media geo_enabled language protected screen_name smart_mute use_cookie_personalization)) {
+    $format =~ s/\$$key/$settings->{$key}/g;
+  }
+
+  return $format;
+}
+
+sub handle_friends {
+  my ($this, $params) = @_;
+
+  my @users = ();
+  my $args = _params2args($params);
+  for (my $cursor = -1, my $result; $cursor; $cursor = $result->{next_cursor} ) {
+    $args->{cursor} = $cursor;
+    $result = $this->agent->friends($args);
+    push @users, @{$result->users};
+  }
+
+  return $this->renderUsers(\@users, $params);
+}
+
 sub handle_list_statuses {
   my ($this, $params) = @_;
 
@@ -321,6 +323,14 @@ sub handle_user_timeline {
   my ($this, $params) = @_;
 
   my $timeline = $this->agent->user_timeline(_params2args($params));
+
+  return $this->renderTimeline($timeline, $params);
+}
+
+sub handle_following_timeline {
+  my ($this, $params) = @_;
+
+  my $timeline = $this->agent->following_timeline(_params2args($params));
 
   return $this->renderTimeline($timeline, $params);
 }
@@ -341,12 +351,70 @@ sub handle_mentions_timeline {
   return $this->renderTimeline($timeline, $params);
 }
 
+sub handle_retweets_of_me {
+  my ($this, $params) = @_;
+
+  my $timeline = $this->agent->retweets_of_me(_params2args($params));
+
+  return $this->renderTimeline($timeline, $params);
+}
+
 sub handle_search {
   my ($this, $params) = @_;
 
   my $result = $this->agent->search(_params2args($params));
 
   return $this->renderTimeline($result->statuses, $params);
+}
+
+sub renderUsers {
+  my ($this, $users, $params) = @_;
+
+  return "<pre>"._dump($users)."</pre>" if Foswiki::Func::isTrue($params->{raw});
+
+  my $format = $params->{format};
+  my $header = $params->{header} || '';
+  my $footer = $params->{footer} || '';
+  my $sep = $params->{separator}; 
+
+  $format = '$screen_name' unless defined $format;
+  $sep = ', ' unless defined $sep;
+
+  my @result = ();
+  
+  my $index = 0;
+  foreach my $item (@$users) {
+    my $line = $format;
+
+    foreach my $key (qw(created_at description favorites_count followers_count
+                        friends_count id lang listed_count location name profile_background_color
+                        profile_background_image_url profile_background_image_url_https
+                        profile_background_tile profile_image_url profile_image_url_https
+                        profile_link_color profile_location profile_sidebar_border_color
+                        profile_sidebar_fill_color profile_text_color profile_use_background_image
+                        protected screen_name status statuses_count time_zone url utc_offset verified)) {
+      my $val;
+
+      if ($key eq 'status') {
+        $val = defined($item->{$key}) ? $item->{$key}->text : '';
+      } else {
+        $val = $item->{$key};
+      } 
+      $line =~ s/\$$key/$val/g;
+    }
+
+    $line =~ s/\$index/$index/g;
+    push @result, $line;
+
+    $index++;
+  }
+
+  return "" unless @result;
+
+  my $result = $header.join($sep, @result).$footer;
+  $result =~ s/\$count/$index/g;
+
+  return Foswiki::Func::decodeFormatTokens($result);
 }
 
 sub renderTimeline {
@@ -429,7 +497,7 @@ sub renderTimeline {
     $line =~ s/\$orig_name/$origUser->name/ge;
     $line =~ s/\$id/$item->{id}/g;
 
-    $line = Encode::encode($Foswiki::cfg{Site}{CharSet}, $line); 
+    $line = Encode::encode($Foswiki::cfg{Site}{CharSet}, $line) unless $Foswiki::UNICODE;
     push @results, $line;
   }
   return '' unless @results;
