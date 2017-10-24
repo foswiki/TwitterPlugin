@@ -1,4 +1,4 @@
 Data::Dump,>=0,cpan,Required.
 Net::Twitter,>=4.0,cpan,Required.
-Cache::FileCache,>=0,cpan,Required.
+Cache::Cache,>=0,cpan,Required.
 LWP::UserAgent,>=0,cpan,Required.

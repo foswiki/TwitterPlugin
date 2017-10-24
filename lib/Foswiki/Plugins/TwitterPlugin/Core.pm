@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014-2016 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -291,7 +291,10 @@ sub handle_account_settings {
   my $format = $params->{format} || '$screen_name';
   foreach my $key (qw(allow_contributor_request allow_dm_groups_from allow_dms_from discoverable_by_email discoverable_by_mobile_phone 
                       display_sensitive_media geo_enabled language protected screen_name smart_mute use_cookie_personalization)) {
-    $format =~ s/\$$key/$settings->{$key}/g;
+
+    my $val = $settings->{$key};
+    $val = '' unless defined $val;
+    $format =~ s/\$$key/$val/g;
   }
 
   return $format;

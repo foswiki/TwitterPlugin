@@ -321,6 +321,7 @@ by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki serve
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  24 Oct 2017: | fixed use of uninitialized value; added proxy support |
 |  30 Nov 2016: | added =account_settings=, =friends=, =following_timeline=, =retweets_of_me= apis; \
                   fixed encoding on Foswiki-2.x; \
                   added rest hanlder =purgeCache= and =clearCache= to maintain the cache |
@@ -329,7 +330,7 @@ by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki serve
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014-2016 Michael Daum http://michaeldaumconsulting.com"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014-2017 Michael Daum http://michaeldaumconsulting.com"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
 %META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
 %META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%

@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014-2016 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2017 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,14 +19,25 @@ use strict;
 use warnings;
 
 use Foswiki::Func();
-use LWP::UserAgent();
 use Cache::FileCache ();
+use LWP::UserAgent();
 our @ISA = qw( LWP::UserAgent );
 
 sub new {
   my $class = shift;
 
   my $this = $class->SUPER::new(@_);
+
+  my $proxy = $Foswiki::cfg{PROXY}{HOST};
+  if ($proxy) {
+    $this->proxy(['http', 'https'], $proxy);
+
+    my $noProxy = $Foswiki::cfg{PROXY}{NoProxy};
+    if ($noProxy) {
+      my @noProxy = split(/\s*,\s*/, $noProxy);
+      $this->no_proxy(@noProxy);
+    }
+  }
 
   $this->{cacheExpire} = $Foswiki::cfg{TwitterPlugin}{CacheExpire};
   $this->{cacheExpire} = 3600 unless defined $this->{cacheExpire}; 
