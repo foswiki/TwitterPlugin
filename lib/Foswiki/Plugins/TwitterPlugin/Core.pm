@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014-2017 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2020 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -62,7 +62,7 @@ sub agent {
 
   unless ($this->{agent}) {
     $this->{agent} = Net::Twitter->new(
-      useragent_class => 'Foswiki::Plugins::TwitterPlugin::UserAgent',
+      useragent_class => 'Foswiki::Contrib::CacheContrib::UserAgent',
       ssl => 1,
       traits => [
         'API::RESTv1_1', 
@@ -76,22 +76,6 @@ sub agent {
   }
 
   return $this->{agent};
-}
-
-sub purgeCache {
-  my $this = shift;
-
-  $this->agent->ua->cache->purge;
-
-  return;
-}
-
-sub clearCache {
-  my $this = shift;
-
-  $this->agent->ua->cache->clear;
-
-  return;
 }
 
 sub restUpdate {
@@ -160,9 +144,7 @@ sub handle_rate_limit_status {
 
   my $args = _params2args($params);
 
-  my $oldExpires = $this->agent->ua->expires(0);
   my $result = $this->agent->rate_limit_status($args);
-  $this->agent->ua->expires($oldExpires);
   
   return "<pre>"._dump($result)."</pre>" if Foswiki::Func::isTrue($params->{raw});
   return "" unless $result;
@@ -215,11 +197,6 @@ sub _rate_limit_resource {
 sub handle_followers {
   my ($this, $params) = @_;
 
-  my $oldExpires;
-  if (defined $params->{expires}) {
-    $oldExpires = $this->agent->ua->expires($params->{expires});
-  }
-
   my @users = ();
   my $args = _params2args($params);
   for (my $cursor = -1, my $result; $cursor; $cursor = $result->{next_cursor} ) {
@@ -227,8 +204,6 @@ sub handle_followers {
     $result = $this->agent->followers($args);
     push @users, @{$result->users};
   }
-
-  $this->agent->ua->expires($oldExpires) if defined $oldExpires;
 
   return "" unless @users;
   return $this->renderUsers(\@users, $params);
@@ -238,14 +213,7 @@ sub handle_followers {
 sub handle_favorites {
   my ($this, $params) = @_;
 
-  my $oldExpires;
-  if (defined $params->{expires}) {
-    $oldExpires = $this->agent->agent->ua->expires($params->{expires});
-  }
-
   my $favs = $this->agent->favorites(_params2args($params));
-
-  $this->agent->ua->expires($oldExpires) if defined $oldExpires;
 
   return $this->renderTimeline($favs, $params);
 }
@@ -534,7 +502,6 @@ sub _params2args {
   delete $args{header};
   delete $args{footer};
   delete $args{separator};
-  delete $args{expires};
   delete $args{raw};
 
   foreach my $key (keys %args) {
