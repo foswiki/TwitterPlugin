@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014-2020 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2022 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -207,7 +207,6 @@ sub handle_followers {
 
   return "" unless @users;
   return $this->renderUsers(\@users, $params);
-
 }
 
 sub handle_favorites {

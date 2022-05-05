@@ -1,6 +1,6 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
-# TwitterPlugin is Copyright (C) 2014-2020 Michael Daum http://michaeldaumconsulting.com
+# TwitterPlugin is Copyright (C) 2014-2022 Michael Daum http://michaeldaumconsulting.com
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@ use warnings;
 
 use Foswiki::Func ();
 
-our $VERSION = '4.00';
-our $RELEASE = '21 Oct 2020';
+our $VERSION = '4.01';
+our $RELEASE = '05 May 2022';
 our $SHORTDESCRIPTION = 'Access Twitter via Foswiki';
 our $NO_PREFS_IN_TOPIC = 1;
 our $core;

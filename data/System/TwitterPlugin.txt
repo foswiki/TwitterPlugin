@@ -1,8 +1,12 @@
-%META:TOPICINFO{author="ProjectContributor" comment="" date="1418752834" format="1.1"  version="1"}%
+%META:TOPICINFO{author="micha" comment="" date="1622103235" format="1.1" version="2"}%
 ---+!! %TOPIC%
 %FORMFIELD{"Description"}%
 
 %TOC%
+
+---++ Setting up connectifity to Twitter
+
+In order to be able read information from twitter, you will need to grant access using an api key. Head over to https://developer.twitter.com/en/apps, create an "app" and secure the required information into the plugin's configuration.
 
 ---++ Syntax
 <verbatim class="tml">
@@ -159,7 +163,6 @@ Example:
 }%
 </verbatim>
 
-
 ---+++ home_timeline
 
 Returns the 20 most recent statuses, including retweets, posted by the authenticating user and that user's friends.
@@ -209,7 +212,6 @@ Example:
 }%
 </verbatim>
 
-
 ---+++ mentions_timeline
 
 Returns the 20 most recent mentions (statuses containing @username) for the authenticating user.
@@ -243,7 +245,6 @@ Parameters:
 ---+++ rate_limit_status
 
 Returns the remaining number of API requests available to the authenticated user before the API limit is reached for the current 15 minutes window.
-
 
 Additional identifiers available when formatting results:
 
@@ -321,6 +322,7 @@ by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki serve
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  05 May 2022: | added docu about how to connect to twitter |
 |  21 Oct 2020: | rewrite of caching code |
 |  24 Oct 2017: | fixed use of uninitialized value; added proxy support |
 |  30 Nov 2016: | added =account_settings=, =friends=, =following_timeline=, =retweets_of_me= apis; \
@@ -331,11 +333,11 @@ by unauthorized people inspecting the =LocalSite.cfg= file on your Foswiki serve
 
 %META:FORM{name="PackageForm"}%
 %META:FIELD{name="Author" title="Author" value="Michael Daum"}%
-%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014-2020 Michael Daum"}%
+%META:FIELD{name="Version" title="Version" value="%25$VERSION%25"}%
+%META:FIELD{name="Release" title="Release" value="%25$RELEASE%25"}%
 %META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
-%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%TOPIC%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%25TOPIC%25"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2014-2022 Michael Daum"}%
 %META:FIELD{name="License" title="License" value="[[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]]"}%
-%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
-%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%TOPIC%"}%
-%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%TOPIC%"}%
-%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%
+%META:FIELD{name="Home" title="Home" value="Foswiki:Extensions/%25TOPIC%25"}%
+%META:FIELD{name="Support" title="Support" value="Foswiki:Support/%25TOPIC%25"}%
